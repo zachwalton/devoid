@@ -6,6 +6,10 @@ It accomplishes this by using the configured LLM, by default the local `deepseek
 
 Implementation is achieved via a state machine to interact with the LLM and process the results as structured output; think things like running bootstrap commands, creating directories and files, and writing code. The experience is guided in the terminal, with the ability to confirm LLM-driven actions, ask the LLM to modify the execution plan in arbitrary ways, answer clarifying questions for the LLM, and other shiny things.
 
+## Safety
+
+All LLM outputs are processed through safety and other validations before moving to the next stage. For things that can't reasonably be validated like arbitrary commands to run, a warning is displayed next to the list of actions so the user can personally validate them before proceeding. Interactive safety checks can be dangerously skipped with `--skip-interactive-safety-checks`.
+
 ## Current Status
 
 The `initial` stage is implemented for project boostrapping, and the outputs (bootstrap commands and filesystem paths) are fed to the `scaffolding` stage. Next the scaffolding stage needs to actually use that output, and then call the next stage, which will write some code in the files created by the scaffolding stage.

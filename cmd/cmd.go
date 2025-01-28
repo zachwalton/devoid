@@ -21,6 +21,11 @@ var Cmd = &cli.Command{
 			Usage:    "Path to the directory where the project should be created. The directory should be empty, and will be created if it doesn't exist",
 			Required: true,
 		},
+		&cli.BoolFlag{
+			Name:  "skip-interactive-safety-checks",
+			Usage: "When true, commands will be run without prompting. Use cautiously",
+			Value: false,
+		},
 		&cli.StringFlag{
 			Name:  "llm.model",
 			Usage: "Name of the model to use, e.g. deepseek-r1:8b for Ollama",
@@ -58,6 +63,7 @@ var Cmd = &cli.Command{
 			reasoner,
 			cfg.Prompt,
 			cfg.ProjectPath,
+			cfg,
 		)
 		return nil
 	},
@@ -69,8 +75,9 @@ func setUpCfg(cmd *cli.Command) (*config.Config, error) {
 		return nil, errors.ErrNoPrompt
 	}
 	return &config.Config{
-		ProjectPath: cmd.String("project-path"),
-		Prompt:      prompt,
+		ProjectPath:                 cmd.String("project-path"),
+		SkipInteractiveSafetyChecks: cmd.Bool("skip-interactive-safety-checks"),
+		Prompt:                      prompt,
 		LLM: config.LLM{
 			Model:       cmd.String("llm.model"),
 			Type:        config.Reasoner(cmd.String("llm.type")),

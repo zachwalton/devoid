@@ -8,9 +8,10 @@ type (
 	Reasoner string
 
 	Config struct {
-		Prompt      string `mapstructure:"prompt"`
-		ProjectPath string `mapstructure:"project-path"`
-		LLM         LLM    `mapstructure:"llm"`
+		Prompt                      string `mapstructure:"prompt"`
+		ProjectPath                 string `mapstructure:"project-path"`
+		SkipInteractiveSafetyChecks bool   `mapstructure:"skip-interactive-safety-checks"`
+		LLM                         LLM    `mapstructure:"llm"`
 	}
 
 	LLM struct {

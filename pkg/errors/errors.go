@@ -16,5 +16,6 @@ var (
 	// Initial stage
 	ErrNoProjectPath     = errors.New("project path was not set")
 	ErrAbsolutePath      = errors.New("failed to resolve absolute path")
-	ErrProjectPathEscape = fmt.Errorf("%w: %s", ErrRecoverable)
+	ErrProjectPathEscape = fmt.Errorf("%w: %s", ErrRecoverable, ErrNoProjectPath)
+	ErrBadCommands       = errors.New("unwanted bootstrap commands")
 )

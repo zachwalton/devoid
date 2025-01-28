@@ -10,6 +10,7 @@ import (
 	"github.com/zachwalton/devoid/pkg/brain"
 	"github.com/zachwalton/devoid/pkg/brain/schema"
 	"github.com/zachwalton/devoid/pkg/brain/templates"
+	"github.com/zachwalton/devoid/pkg/config"
 	"github.com/zachwalton/devoid/pkg/errors"
 	stagepkg "github.com/zachwalton/devoid/pkg/llm/stages"
 	"github.com/zachwalton/devoid/pkg/tui"
@@ -25,7 +26,7 @@ type (
 		ResponseCh() <-chan Response
 	}
 
-	HandlerFunc func(payload *brain.StagePayload) error
+	HandlerFunc func(*brain.StagePayload, *config.Config) error
 
 	Prompt struct {
 		Message        string
@@ -70,7 +71,7 @@ var (
 	}
 )
 
-func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) chan bool {
+func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string, cfg *config.Config) chan bool {
 	doneCh := make(chan bool)
 	jsonCh := make(chan string)
 	stage := "initial"
@@ -158,8 +159,15 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 				}
 			}
 
+			if stages[stage].LLM {
+				if iteration > 1 {
+					payload.StateMachine.ModifiedResult = true
+				}
+				tui.MarkdownView(payload.Markdown(stage, projectDir))
+			}
+
 			payload.Meta.ProjectPath = projectDir
-			err := stages[stage].HandlerFunc(&payload)
+			err := stages[stage].HandlerFunc(&payload, cfg)
 			if err != nil {
 				switch {
 				case goerrors.Is(err, errors.ErrRecoverable):
@@ -175,13 +183,6 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 			s := stages[stage]
 			s.Payload = &payload
 			stages[stage] = s
-
-			if stages[stage].LLM {
-				if iteration > 1 {
-					payload.StateMachine.ModifiedResult = true
-				}
-				tui.MarkdownView(payload.Markdown(stage, projectDir))
-			}
 
 			if stages[stage].Final {
 				log.Info("All stages have been completed!")
