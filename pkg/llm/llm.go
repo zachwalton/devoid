@@ -72,6 +72,12 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 	doneCh := make(chan bool)
 	jsonCh := make(chan string)
 	stage := "initial"
+	choice := ""
+	choiceChanges := "Request changes in a live chat session"
+	choiceExit := "Exit the program"
+	choiceAnswers := "Answer some questions to help improve this result before proceeding"
+	choiceTryAgain := "I just don't like the response. Try again"
+
 	var jsonResponse string
 	iteration := 1
 	log.Info("creating project...", "path", projectDir)
@@ -100,7 +106,7 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 				}
 			}()
 
-			if iteration > 1 {
+			if iteration > 1 && choice != choiceTryAgain {
 				llmCtx, cancel := context.WithCancel(ctx)
 				fmt.Println()
 				spinner := tui.Spinner(llmCtx, cancel, "Working with the LLM on requested changes...")
@@ -180,13 +186,11 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 			}
 
 			choiceMoveAhead := fmt.Sprintf("Move ahead to the '%s' stage", payload.StateMachine.Next)
-			choiceChanges := "Request changes in a live chat session"
-			choiceExit := "Exit the program"
-			choiceAnswers := "Answer some questions to help improve this result before proceeding"
 
 			choices := []string{
 				choiceMoveAhead,
 				choiceChanges,
+				choiceTryAgain,
 				choiceExit,
 			}
 			if len(payload.StateMachine.Questions) != 0 {
@@ -239,6 +243,9 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 					}
 					selected = true
 					prompt = p.String()
+				case choiceTryAgain:
+					iteration++
+					selected = true
 				}
 			}
 		}
