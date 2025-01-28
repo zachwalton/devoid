@@ -3,12 +3,14 @@ package llm
 import (
 	"context"
 	"encoding/json"
+	goerrors "errors"
 	"fmt"
 	"strings"
 
 	"github.com/zachwalton/devoid/pkg/brain"
 	"github.com/zachwalton/devoid/pkg/brain/schema"
 	"github.com/zachwalton/devoid/pkg/brain/templates"
+	"github.com/zachwalton/devoid/pkg/errors"
 	stagepkg "github.com/zachwalton/devoid/pkg/llm/stages"
 	"github.com/zachwalton/devoid/pkg/tui"
 
@@ -109,7 +111,7 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 			if iteration > 1 && choice != choiceTryAgain {
 				llmCtx, cancel := context.WithCancel(ctx)
 				fmt.Println()
-				spinner := tui.Spinner(llmCtx, cancel, "Working with the LLM on requested changes...")
+				spinner := tui.Spinner(llmCtx, cancel, "Working with the LLM on some changes...")
 				defer spinner.Stop()
 
 				if stages[stage].LLM {
@@ -156,10 +158,18 @@ func Start(ctx context.Context, reasoner Reasoner, prompt, projectDir string) ch
 				}
 			}
 
+			payload.Meta.ProjectPath = projectDir
 			err := stages[stage].HandlerFunc(&payload)
 			if err != nil {
-				log.Error("got an error handling stage", "stage", stage, "error", err)
-				return
+				switch {
+				case goerrors.Is(err, errors.ErrRecoverable):
+					prompt = stagepkg.UpdatePromptForErr(stage, err)
+					iteration++
+					continue
+				default:
+					log.Error("got an error handling stage", "stage", stage, "error", err)
+					return
+				}
 			}
 			log.Info("successfully applied stage", "stage", stage)
 			s := stages[stage]
