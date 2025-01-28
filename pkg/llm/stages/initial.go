@@ -15,6 +15,9 @@ import (
 // HandleInitial performs safety checks on ProjectLayout paths, so the scaffolding
 // stage is able to create them confidently
 func HandleInitial(payload *brain.StagePayload, cfg *config.Config) error {
+	if len(payload.Stages.Scaffolding.BootstrapCommands) == 0 && len(payload.Stages.Scaffolding.ProjectLayout) == 0 {
+		return errors.ErrInitialNothingToDo
+	}
 	// Ensure ProjectPath is set
 	if payload.Meta.ProjectPath == "" {
 		return errors.ErrNoProjectPath
@@ -82,7 +85,7 @@ func HandleInitial(payload *brain.StagePayload, cfg *config.Config) error {
 	}
 
 	log.Info(
-		"completed safety checks on project layout paths and bootstrap commands",
+		"completed validations and safety checks on project layout paths and bootstrap commands",
 		"paths",
 		payload.Stages.Scaffolding.ProjectLayout,
 		"commands",
