@@ -10,6 +10,8 @@ Implementation is achieved via a state machine to interact with the LLM and proc
 
 The `initial` stage is implemented for project boostrapping, and the outputs (bootstrap commands and filesystem paths) are fed to the `scaffolding` stage. Next the scaffolding stage needs to actually use that output, and then call the next stage, which will write some code in the files created by the scaffolding stage.
 
+Also on the roadmap is writing out checkpoint state (patches, model output and input, etc.) into the project repo for each stage to allow for easy rollback/restarting at a given stage.
+
 ## Demo
 
 <video width="640" height="360" controls>
