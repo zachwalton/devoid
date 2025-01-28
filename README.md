@@ -2,7 +2,7 @@
 
 Devoid (think de-void, like the Big Bang) creates an entire codebase from scratch, when provided with just a prompt and directory path.
 
-It accomplishes this by using the configured LLM, by default the local `deepseek-r1:8b` model via Ollama. More models will be supported in the future.
+It accomplishes this by using the configured LLM, by default the local `deepseek-r1:8b` model via Ollama. Any Ollama model is supported, and more models will be supported in the future.
 
 Implementation is achieved via a state machine to interact with the LLM and process the results as structured output; think things like running bootstrap commands, creating directories and files, and writing code. The experience is guided in the terminal, with the ability to confirm LLM-driven actions, ask the LLM to modify the execution plan in arbitrary ways, answer clarifying questions for the LLM, and other shiny things.
 
