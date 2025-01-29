@@ -55,16 +55,16 @@ var (
 	stages = map[string]Stage{
 		"initial": {
 			LLM:                true,
-			Description:        "This stage analyzes the prompt and figures out things like language, frameworks, initial scaffolding, and so on.",
+			Description:        "This stage analyzes the prompt and figures out things like language, frameworks, etc.",
 			SystemTemplateFunc: templates.SystemInitial,
 			Schema:             schema.SchemaInitial(),
-			Next:               "scaffolding",
+			Next:               "ast",
 			HandlerFunc:        stagepkg.HandleInitial,
 		},
-		"scaffolding": {
-			LLM:         false,
-			Description: "This stage applies the changes from the 'initial' stage to the project",
-			HandlerFunc: stagepkg.HandleScaffolding,
+		"ast": {
+			LLM:         true,
+			Description: "This stage creates an adjacency list / directed graph of the proposed codebase",
+			HandlerFunc: stagepkg.HandleAST,
 			Next:        "run",
 			Final:       true,
 		},

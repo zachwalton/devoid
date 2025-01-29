@@ -12,7 +12,7 @@ All LLM outputs are processed through safety and other validations before moving
 
 ## Current Status
 
-The `initial` stage is implemented for project boostrapping, and the outputs (bootstrap commands and filesystem paths) are fed to the `scaffolding` stage. Next the scaffolding stage needs to actually use that output, and then call the next stage, which will write some code in the files created by the scaffolding stage.
+The `initial` stage is implemented for project boostrapping, and the outputs are fed to the `ast` stage. Next the AST stage needs to use that output to create a directed graph / adjacency list, and then call the next stage, which will write those files to disk. Code will follow after.
 
 Also on the roadmap is writing out checkpoint state (patches, model output and input, etc.) into the project repo for each stage to allow for easy rollback/restarting at a given stage.
 

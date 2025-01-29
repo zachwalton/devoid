@@ -8,7 +8,6 @@ import (
 type StagePayload struct {
 	Meta         MetaPayload         `json:"meta"`
 	StateMachine StateMachinePayload `json:"state_machine"`
-	Stages       StagesPayload       `json:"stages"`
 }
 
 type MetaPayload struct {
@@ -28,15 +27,6 @@ type StateMachinePayload struct {
 	ModifiedResult bool     `json:"modified_result"`
 	Description    string   `json:"description"`
 	Questions      []string `json:"questions"`
-}
-
-type StagesPayload struct {
-	Scaffolding StageScaffoldingPayload `json:"scaffolding"`
-}
-
-type StageScaffoldingPayload struct {
-	BootstrapCommands []string `json:"bootstrap_commands"`
-	ProjectLayout     []string `json:"project_layout"`
 }
 
 func (p *StagePayload) Markdown(stage, projectPath string) string {
@@ -67,32 +57,6 @@ The following are the high-level design choices for the "{{.Meta.Name}}" app. Th
 * *Test Strategy:* {{.Meta.Test}}
 * *Framework(s):* {{.Meta.Framework}}
 * *Architecture(s):* {{.Meta.Architecture}}
-{{ end }}
-
-## Upcoming Changes
-
-The following changes will be made in the subsequent "{{.StateMachine.Next}}" phase.
-
-{{ if eq .Meta.CurrentStage "initial" }}
-{{ if gt (len .Stages.Scaffolding.BootstrapCommands) 0 }}
-### Bootstrap Commands
-
-The following commands will be run on your system to set up the local project. If they're not installed, you'll be prompted to install them.
-
-{{ range $command := .Stages.Scaffolding.BootstrapCommands }}
-* ` + "`" + `{{$command}}` + "`" + ` 
-{{ end }}
-{{ end }}
-
-{{ if gt (len .Stages.Scaffolding.ProjectLayout) 0 }}
-### Directory Layout
-
-The following directories and files will be created in the ` + "`" + `{{.Meta.ProjectPath}}` + "`" + ` directory. If this step fails, you'll be prompted to correct permissions.
-
-{{ range $path := .Stages.Scaffolding.ProjectLayout }}
-* ` + "`" + `{{$path}}` + "`" + ` 
-{{ end }}
-{{ end }}
 {{ end }}
 
 {{ if gt (len .StateMachine.Questions) 0 }}

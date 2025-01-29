@@ -20,7 +20,6 @@ type Schema struct {
 type SchemaProperties struct {
 	Meta         *MetaProperties         `json:"meta"`
 	StateMachine *StateMachineProperties `json:"state_machine"`
-	Stages       *StageProperties        `json:"stages"`
 }
 
 type MetaProperties struct {
@@ -54,29 +53,6 @@ type StateMachinePropertyList struct {
 	Questions   *Property `json:"questions"`
 }
 
-type StageProperties struct {
-	Type        string             `json:"type"`
-	Description string             `json:"description"`
-	Required    []string           `json:"required"`
-	Properties  *StagePropertyList `json:"properties"`
-}
-
-type StagePropertyList struct {
-	Scaffolding *ScaffoldingProperties `json:"scaffolding"`
-}
-
-type ScaffoldingPropertyList struct {
-	BootstrapCommands *Property `json:"bootstrap_commands"`
-	ProjectLayout     *Property `json:"project_layout"`
-}
-
-type ScaffoldingProperties struct {
-	Type        string                   `json:"type"`
-	Description string                   `json:"description"`
-	Required    []string                 `json:"required"`
-	Properties  *ScaffoldingPropertyList `json:"properties"`
-}
-
 type Property struct {
 	Type        string      `json:"type"`
 	Description string      `json:"description"`
@@ -93,7 +69,7 @@ func schemaDefault() *Schema {
 		Schema:   "http://json-schema.org/draft-07/schema#",
 		Title:    "Devoid",
 		Type:     "object",
-		Required: []string{"state_machine", "stages"},
+		Required: []string{"state_machine"},
 		Properties: &SchemaProperties{
 			StateMachine: &StateMachineProperties{
 				Type:        "object",
@@ -127,29 +103,6 @@ func metaDefault() *MetaProperties {
 	}
 }
 
-func stageScaffolding() *StageProperties {
-	return &StageProperties{
-		Type:        "object",
-		Description: "Stage-specific fields",
-		Required:    []string{"scaffolding"},
-		Properties: &StagePropertyList{
-			Scaffolding: &ScaffoldingProperties{
-				Type:        "object",
-				Description: "Fields needed by the scaffolding stage",
-				Required:    []string{"bootstrap_commands", "project_layout"},
-				Properties: &ScaffoldingPropertyList{
-					BootstrapCommands: &Property{Type: "array", Items: &Item{Type: "string"}, Description: "If relevant for the architecture, framework, or language, this should be an array of commands to execute to bootstrap the project. An example might be 'go mod init' for golang", Default: []string{}},
-					ProjectLayout:     &Property{Type: "array", Items: &Item{Type: "string"}, Description: "If no bootstrap_commands are provided, instead provide a full list of files and directories, relative to the project dir, for the user to mkdir/touch to create scaffolding for the project. The directory and file layout may be nested and should be appropriate for the chosen framework. Directories should end in '/'", Default: []string{}},
-				},
-			},
-		},
-	}
-}
-
-func stageRun() *StageProperties {
-	return nil
-}
-
 func (s Schema) JSON() string {
 	j, _ := json.Marshal(s)
 	return string(j)
@@ -159,6 +112,5 @@ func SchemaInitial() string {
 	s := schemaDefault()
 	s.Required = append(s.Required, "meta")
 	s.Properties.Meta = metaDefault()
-	s.Properties.Stages = stageScaffolding()
 	return s.JSON()
 }
